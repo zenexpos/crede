@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { Customer } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { CustomersTable } from './customers-table';
-import { Search, Download } from 'lucide-react';
+import { Search, Download, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { mockDataStore } from '@/lib/mock-data';
 
@@ -15,10 +15,10 @@ export function CustomerOverview({
   customers: Customer[];
 }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filteredCustomers = customers.filter(
-    (customer) =>
-      customer.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCustomers = customers.filter((customer) =>
+    customer.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleBackup = () => {
@@ -36,6 +36,59 @@ export function CustomerOverview({
     URL.revokeObjectURL(url);
   };
 
+  const handleRestoreClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result;
+        if (typeof text !== 'string') {
+          throw new Error("Le fichier n'a pas pu être lu");
+        }
+        const data = JSON.parse(text);
+
+        // Basic validation
+        if (
+          !data ||
+          !Array.isArray(data.customers) ||
+          !Array.isArray(data.transactions)
+        ) {
+          throw new Error('Format de fichier de sauvegarde invalide.');
+        }
+
+        // Restore data
+        mockDataStore.customers = data.customers;
+        mockDataStore.transactions = data.transactions;
+
+        // Trigger UI update
+        window.dispatchEvent(new Event('datachanged'));
+
+        alert('La sauvegarde a été restaurée avec succès !');
+      } catch (error) {
+        console.error('Failed to restore backup:', error);
+        alert(
+          `Erreur lors de la restauration de la sauvegarde: ${
+            error instanceof Error ? error.message : 'Erreur inconnue'
+          }`
+        );
+      } finally {
+        // Reset file input so the same file can be uploaded again
+        if (event.target) {
+          event.target.value = '';
+        }
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -51,10 +104,21 @@ export function CustomerOverview({
                 className="pl-10 w-full"
               />
             </div>
+            <Button variant="outline" onClick={handleRestoreClick}>
+              <Upload />
+              Charger une sauvegarde
+            </Button>
             <Button variant="outline" onClick={handleBackup}>
               <Download />
               Prendre une copie de sauvegarde
             </Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+              accept="application/json"
+            />
           </div>
         </div>
       </CardHeader>
