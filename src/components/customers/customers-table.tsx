@@ -12,9 +12,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Button } from '@/components/ui/button';
+import { AddTransactionDialog } from '@/components/transactions/add-transaction-dialog';
 
 export function CustomersTable({
   customers,
@@ -36,19 +38,13 @@ export function CustomersTable({
             <TableHead className="hidden sm:table-cell">Téléphone</TableHead>
             <TableHead className="hidden md:table-cell">Date d'ajout</TableHead>
             <TableHead className="text-right">Solde</TableHead>
-            <TableHead>
-              <span className="sr-only">Voir</span>
-            </TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {customers.length > 0 ? (
             customers.map((customer) => (
-              <TableRow
-                key={customer.id}
-                onClick={() => handleRowClick(customer.id)}
-                className="cursor-pointer"
-              >
+              <TableRow key={customer.id}>
                 <TableCell className="font-medium">{customer.name}</TableCell>
                 <TableCell className="hidden sm:table-cell text-muted-foreground">
                   {customer.phone}
@@ -73,7 +69,22 @@ export function CustomersTable({
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex items-center justify-end gap-2">
+                    <AddTransactionDialog type="debt" customerId={customer.id}>
+                      <Button variant="outline" size="sm">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Ajouter une dette
+                      </Button>
+                    </AddTransactionDialog>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRowClick(customer.id)}
+                    >
+                      <span className="sr-only">Voir les détails</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))
