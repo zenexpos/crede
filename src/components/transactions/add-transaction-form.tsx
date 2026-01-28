@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, type FormEvent } from 'react';
+import { useRef } from 'react';
 import { z } from 'zod';
 import { useFirestore } from '@/firebase';
 import { collection, doc, writeBatch, increment } from 'firebase/firestore';
@@ -8,9 +8,9 @@ import { collection, doc, writeBatch, increment } from 'firebase/firestore';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
 import { SubmitButton } from '@/components/forms/submit-button';
 import type { TransactionType } from '@/lib/types';
+import { useFormSubmission } from '@/hooks/use-form-submission';
 
 const transactionSchema = z.object({
   amount: z.coerce
@@ -20,8 +20,6 @@ const transactionSchema = z.object({
     .string()
     .min(3, { message: 'La description doit comporter au moins 3 caractères.' }),
 });
-
-type FormErrors = z.inferFormattedError<typeof transactionSchema> | undefined;
 
 export function AddTransactionForm({
   type,
@@ -34,84 +32,40 @@ export function AddTransactionForm({
 }) {
   const firestore = useFirestore();
   const formRef = useRef<HTMLFormElement>(null);
-  const { toast } = useToast();
-
-  const [isPending, setIsPending] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>(undefined);
 
   const text = type === 'debt' ? 'Ajouter une dette' : 'Ajouter un paiement';
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!firestore) return;
+  const { isPending, errors, handleSubmit } = useFormSubmission({
+    formRef,
+    schema: transactionSchema,
+    onSuccess,
+    config: {
+      successMessage: 'Transaction ajoutée avec succès.',
+      errorMessage: "Une erreur est survenue lors de l'ajout de la transaction.",
+    },
+    onSubmit: async (data) => {
+      if (!firestore) throw new Error('Firestore not available');
 
-    setIsPending(true);
-    setErrors(undefined);
-
-    const formData = new FormData(event.currentTarget);
-    const validatedFields = transactionSchema.safeParse({
-      amount: formData.get('amount'),
-      description: formData.get('description'),
-    });
-
-    if (!validatedFields.success) {
-      setErrors(validatedFields.error.format());
-      setIsPending(false);
-      toast({
-        title: 'Erreur',
-        description: 'Veuillez corriger les erreurs ci-dessous.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    try {
       const batch = writeBatch(firestore);
 
       // Create new transaction document
-      const transactionRef = doc(
-        collection(firestore, `transactions`)
-      );
+      const transactionRef = doc(collection(firestore, 'transactions'));
       batch.set(transactionRef, {
-        ...validatedFields.data,
+        ...data,
         customerId,
         type,
         date: new Date().toISOString(),
       });
 
       // Update customer balance
-      const customerRef = doc(
-        firestore,
-        `customers`,
-        customerId
-      );
+      const customerRef = doc(firestore, 'customers', customerId);
       const incrementAmount =
-        type === 'debt'
-          ? validatedFields.data.amount
-          : -validatedFields.data.amount;
+        type === 'debt' ? data.amount : -data.amount;
       batch.update(customerRef, { balance: increment(incrementAmount) });
 
       await batch.commit();
-
-      toast({
-        title: 'Succès !',
-        description: 'Transaction ajoutée avec succès.',
-      });
-
-      formRef.current?.reset();
-      onSuccess?.();
-    } catch (error) {
-      console.error('Error adding transaction: ', error);
-      toast({
-        title: 'Erreur',
-        description:
-          "Une erreur est survenue lors de l'ajout de la transaction.",
-        variant: 'destructive',
-      });
-    } finally {
-      setIsPending(false);
-    }
-  };
+    },
+  });
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">

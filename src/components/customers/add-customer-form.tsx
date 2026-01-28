@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useRef, type FormEvent } from 'react';
+import { useRef } from 'react';
 import { z } from 'zod';
 import { useFirestore } from '@/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
 import { SubmitButton } from '@/components/forms/submit-button';
+import { useFormSubmission } from '@/hooks/use-form-submission';
 
 const customerSchema = z.object({
   name: z
@@ -19,69 +19,28 @@ const customerSchema = z.object({
   }),
 });
 
-type FormErrors = z.inferFormattedError<typeof customerSchema> | undefined;
-
 export function AddCustomerForm({ onSuccess }: { onSuccess?: () => void }) {
   const firestore = useFirestore();
   const formRef = useRef<HTMLFormElement>(null);
-  const { toast } = useToast();
 
-  const [isPending, setIsPending] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>(undefined);
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!firestore) return;
-
-    setIsPending(true);
-    setErrors(undefined);
-
-    const formData = new FormData(event.currentTarget);
-    const validatedFields = customerSchema.safeParse({
-      name: formData.get('name'),
-      phone: formData.get('phone'),
-    });
-
-    if (!validatedFields.success) {
-      setErrors(validatedFields.error.format());
-      setIsPending(false);
-      toast({
-        title: 'Erreur',
-        description: 'Veuillez corriger les erreurs ci-dessous.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    try {
-      const customersCollection = collection(
-        firestore,
-        `customers`
-      );
+  const { isPending, errors, handleSubmit } = useFormSubmission({
+    formRef,
+    schema: customerSchema,
+    onSuccess,
+    config: {
+      successMessage: 'Client ajouté avec succès.',
+      errorMessage: "Une erreur est survenue lors de l'ajout du client.",
+    },
+    onSubmit: async (data) => {
+      if (!firestore) throw new Error('Firestore not available');
+      const customersCollection = collection(firestore, 'customers');
       await addDoc(customersCollection, {
-        ...validatedFields.data,
+        ...data,
         createdAt: new Date().toISOString(),
         balance: 0,
       });
-
-      toast({
-        title: 'Succès !',
-        description: 'Client ajouté avec succès.',
-      });
-
-      formRef.current?.reset();
-      onSuccess?.();
-    } catch (error) {
-      console.error('Error adding customer: ', error);
-      toast({
-        title: 'Erreur',
-        description: "Une erreur est survenue lors de l'ajout du client.",
-        variant: 'destructive',
-      });
-    } finally {
-      setIsPending(false);
-    }
-  };
+    },
+  });
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
