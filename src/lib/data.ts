@@ -85,21 +85,6 @@ class DataStore {
     this.transactions.push(newTransaction);
     return newTransaction;
   }
-
-  async getReportData() {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const customers = await this.getCustomers();
-    const totalDebts = this.transactions.filter(t => t.type === 'debt').reduce((sum, t) => sum + t.amount, 0);
-    const totalPayments = this.transactions.filter(t => t.type === 'payment').reduce((sum, t) => sum + t.amount, 0);
-    
-    return {
-        totalDebts,
-        totalPayments,
-        netBalance: totalDebts - totalPayments,
-        customerCount: customers.length,
-        customersWithDebt: customers.filter(c => c.balance > 0).sort((a,b) => b.balance - a.balance),
-    }
-  }
 }
 
 // Singleton instance of the data store
