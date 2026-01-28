@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Customer } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getBalanceVariant } from '@/lib/utils';
 import {
   Table,
   TableBody,
@@ -16,11 +16,7 @@ import { fr } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { AddTransactionDialog } from '@/components/transactions/add-transaction-dialog';
 
-export function CustomersTable({
-  customers,
-}: {
-  customers: Customer[];
-}) {
+export function CustomersTable({ customers }: { customers: Customer[] }) {
   return (
     <div className="overflow-hidden rounded-lg border">
       <Table>
@@ -48,13 +44,7 @@ export function CustomersTable({
                 </TableCell>
                 <TableCell className="text-right">
                   <Badge
-                    variant={
-                      customer.balance > 0
-                        ? 'destructive'
-                        : customer.balance < 0
-                        ? 'success'
-                        : 'default'
-                    }
+                    variant={getBalanceVariant(customer.balance)}
                     className="font-mono"
                   >
                     {formatCurrency(customer.balance)}

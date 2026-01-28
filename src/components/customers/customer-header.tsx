@@ -1,5 +1,7 @@
+'use client';
+
 import type { Customer } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getBalanceColorClassName } from '@/lib/utils';
 import {
   Card,
   CardContent,
@@ -11,11 +13,7 @@ import { Phone } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-export function CustomerHeader({
-  customer,
-}: {
-  customer: Customer;
-}) {
+export function CustomerHeader({ customer }: { customer: Customer }) {
   return (
     <Card>
       <CardHeader>
@@ -32,13 +30,9 @@ export function CustomerHeader({
           <div className="text-left sm:text-right">
             <p className="text-sm text-muted-foreground">Solde actuel</p>
             <p
-              className={`text-3xl font-bold ${
-                customer.balance > 0
-                  ? 'text-destructive'
-                  : customer.balance < 0
-                  ? 'text-accent'
-                  : 'text-foreground'
-              }`}
+              className={`text-3xl font-bold ${getBalanceColorClassName(
+                customer.balance
+              )}`}
             >
               {formatCurrency(customer.balance)}
             </p>
