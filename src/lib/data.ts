@@ -20,17 +20,6 @@ let transactions: Transaction[] = [
 
 const simulateDelay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-function calculateBalance(customerId: string): number {
-  return transactions
-    .filter(t => t.customerId === customerId)
-    .reduce((acc, t) => {
-      if (t.type === 'debt') {
-        return acc + t.amount;
-      }
-      return acc - t.amount;
-    }, 0);
-}
-
 async function getCustomers(): Promise<CustomerWithBalance[]> {
   await simulateDelay(500);
 
@@ -53,9 +42,19 @@ async function getCustomerById(id: string): Promise<CustomerWithBalance | null> 
   await simulateDelay(300);
   const customer = customers.find(c => c.id === id);
   if (!customer) return null;
+  
+  const balance = transactions
+    .filter(t => t.customerId === id)
+    .reduce((acc, t) => {
+      if (t.type === 'debt') {
+        return acc + t.amount;
+      }
+      return acc - t.amount;
+    }, 0);
+
   return {
     ...customer,
-    balance: calculateBalance(id),
+    balance,
   };
 }
 
