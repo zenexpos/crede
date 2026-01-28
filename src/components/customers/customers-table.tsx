@@ -57,6 +57,15 @@ export function CustomersTable({ customers }: { customers: Customer[] }) {
                       customerId={customer.id}
                       buttonProps={{ size: 'sm' }}
                     />
+                    {customer.balance > 0 && (
+                      <AddTransactionDialog
+                        type="payment"
+                        customerId={customer.id}
+                        buttonProps={{ size: 'sm' }}
+                        defaultAmount={customer.balance}
+                        defaultDescription="Règlement du solde"
+                      />
+                    )}
                     <Button variant="ghost" size="icon" asChild>
                       <Link href={`/customers/${customer.id}`}>
                         <span className="sr-only">Voir les détails</span>

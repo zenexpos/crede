@@ -29,15 +29,19 @@ export function AddTransactionForm({
   type,
   customerId,
   onSuccess,
+  defaultAmount,
+  defaultDescription,
 }: {
   type: TransactionType;
   customerId: string;
   onSuccess?: () => void;
+  defaultAmount?: number;
+  defaultDescription?: string;
 }) {
   const firestore = useFirestore();
   const formRef = useRef<HTMLFormElement>(null);
 
-  const text = type === 'debt' ? 'Ajouter une dette' : 'Ajouter un paiement';
+  const text = type === 'debt' ? 'Ajouter la dette' : 'Ajouter le paiement';
 
   const { isPending, errors, handleSubmit } = useFormSubmission({
     formRef,
@@ -80,7 +84,7 @@ export function AddTransactionForm({
           name="amount"
           type="number"
           step="0.01"
-          defaultValue="0"
+          defaultValue={defaultAmount || 0}
         />
         {errors?.amount && (
           <p className="text-sm font-medium text-destructive">
@@ -95,6 +99,7 @@ export function AddTransactionForm({
           id="description"
           name="description"
           placeholder="ex: Services de conception de sites Web"
+          defaultValue={defaultDescription || ''}
         />
         {errors?.description && (
           <p className="text-sm font-medium text-destructive">

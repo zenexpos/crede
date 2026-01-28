@@ -8,10 +8,14 @@ export function AddTransactionDialog({
   type,
   customerId,
   buttonProps,
+  defaultAmount,
+  defaultDescription,
 }: {
   type: TransactionType;
   customerId: string;
   buttonProps?: Omit<ButtonProps, 'children' | 'onClick'>;
+  defaultAmount?: number;
+  defaultDescription?: string;
 }) {
   const isDebt = type === 'debt';
 
@@ -34,7 +38,14 @@ export function AddTransactionDialog({
           {buttonText}
         </Button>
       }
-      form={<AddTransactionForm type={type} customerId={customerId} />}
+      form={
+        <AddTransactionForm
+          type={type}
+          customerId={customerId}
+          defaultAmount={defaultAmount}
+          defaultDescription={defaultDescription}
+        />
+      }
     />
   );
 }
