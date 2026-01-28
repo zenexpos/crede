@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { collection, doc, query, where } from 'firebase/firestore';
+import { collection, doc, query, where, orderBy } from 'firebase/firestore';
 import { useCollection, useDoc, useFirestore, useUser } from '@/firebase';
 import type { Customer, Transaction } from '@/lib/types';
 import Link from 'next/link';
@@ -32,7 +32,11 @@ export default function CustomerDetailPage({
       firestore,
       `users/${user.uid}/transactions`
     );
-    return query(transactionsCollection, where('customerId', '==', params.id));
+    return query(
+      transactionsCollection,
+      where('customerId', '==', params.id),
+      orderBy('date', 'desc')
+    );
   }, [firestore, user, params.id]);
 
   const { data: customer, loading: customerLoading } = useDoc<Customer>(customerRef);
@@ -50,13 +54,6 @@ export default function CustomerDetailPage({
     notFound();
   }
 
-  // Sort transactions by date descending
-  const sortedTransactions = transactions
-    ? [...transactions].sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      )
-    : [];
-
   return (
     <div className="space-y-8">
       <div>
@@ -69,7 +66,7 @@ export default function CustomerDetailPage({
         <CustomerHeader customer={customer} />
       </div>
       <TransactionsView
-        transactions={sortedTransactions}
+        transactions={transactions || []}
         customerId={customer.id}
       />
     </div>

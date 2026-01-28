@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { collection } from 'firebase/firestore';
+import { collection, query, orderBy } from 'firebase/firestore';
 import { useCollection, useFirestore, useUser } from '@/firebase';
 import type { Customer } from '@/lib/types';
 
@@ -18,7 +18,8 @@ export default function DashboardPage() {
 
   const customersQuery = useMemo(() => {
     if (!firestore || !user) return null;
-    return collection(firestore, `users/${user.uid}/customers`);
+    const customersCollection = collection(firestore, `users/${user.uid}/customers`);
+    return query(customersCollection, orderBy('createdAt', 'desc'));
   }, [firestore, user]);
 
   const { data: customers, loading: customersLoading } =
