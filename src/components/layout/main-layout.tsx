@@ -43,9 +43,6 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           </span>
         </Link>
         <div className="ml-auto flex items-center gap-2">
-          <span className="hidden text-sm text-muted-foreground sm:inline">
-            {user.displayName || user.email}
-          </span>
           <Button variant="ghost" size="icon" onClick={handleSignOut}>
             <LogOut />
             <span className="sr-only">Déconnexion</span>
