@@ -22,12 +22,13 @@ export default function CustomerDetailPage({
 }: {
   params: { id: string };
 }) {
+  const { id } = params;
   const firestore = useFirestore();
 
   const customerRef = useMemo(() => {
     if (!firestore) return null;
-    return doc(firestore, CUSTOMERS_COLLECTION, params.id);
-  }, [firestore, params.id]);
+    return doc(firestore, CUSTOMERS_COLLECTION, id);
+  }, [firestore, id]);
 
   const transactionsQuery = useMemo(() => {
     if (!firestore) return null;
@@ -37,10 +38,10 @@ export default function CustomerDetailPage({
     );
     return query(
       transactionsCollection,
-      where('customerId', '==', params.id),
+      where('customerId', '==', id),
       orderBy('date', 'desc')
     );
-  }, [firestore, params.id]);
+  }, [firestore, id]);
 
   const { data: customer, loading: customerLoading } = useDocOnce<Customer>(customerRef);
   const { data: transactions, loading: transactionsLoading } =
