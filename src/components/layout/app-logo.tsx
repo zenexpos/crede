@@ -16,7 +16,7 @@ export function AppLogo() {
         textAnchor="middle"
         fill="hsl(var(--primary-foreground))"
         fontSize="16"
-        fontFamily="var(--font-inter)"
+        fontFamily="sans-serif"
         fontWeight="bold"
       >
         CZ
