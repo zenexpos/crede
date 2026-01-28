@@ -12,14 +12,13 @@ export function FirebaseClientProvider({
 }) {
   // By using useMemo, we ensure that Firebase is only initialized once
   // on the client side, preventing re-initialization on re-renders.
-  const firebaseInstances = useMemo(() => {
+  const firestoreInstance = useMemo(() => {
     const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-    const firestore = getFirestore(app);
-    return { firebaseApp: app, firestore };
+    return getFirestore(app);
   }, []);
 
   return (
-    <FirebaseProvider value={firebaseInstances}>
+    <FirebaseProvider value={{ firestore: firestoreInstance }}>
       {children}
     </FirebaseProvider>
   );
