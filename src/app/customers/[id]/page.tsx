@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import type { Customer, Transaction } from '@/lib/types';
 import Link from 'next/link';
@@ -21,16 +21,27 @@ import {
 export default function CustomerDetailPage() {
   const params = useParams();
   const id = params.id as string;
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  useEffect(() => {
+    const handleDataChanged = () => {
+      setRefreshTrigger((prev) => prev + 1);
+    };
+    window.addEventListener('datachanged', handleDataChanged);
+    return () => {
+      window.removeEventListener('datachanged', handleDataChanged);
+    };
+  }, []);
 
   const fetchCustomer = useCallback(() => {
     if (!id) return Promise.resolve(null);
     return getCustomerById(id);
-  }, [id]);
+  }, [id, refreshTrigger]);
 
   const fetchTransactions = useCallback(() => {
     if (!id) return Promise.resolve(null);
     return getTransactionsByCustomerId(id);
-  }, [id]);
+  }, [id, refreshTrigger]);
 
   const { data: customer, loading: customerLoading } =
     useDocOnce<Customer>(fetchCustomer);

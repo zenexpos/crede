@@ -3,7 +3,6 @@
 import { useState, type FormEvent } from 'react';
 import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 
 interface UseFormSubmissionProps<T extends z.ZodType<any, any>> {
   schema: T;
@@ -25,7 +24,6 @@ export function useFormSubmission<T extends z.ZodType<any, any>>({
   config,
 }: UseFormSubmissionProps<T>) {
   const { toast } = useToast();
-  const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [errors, setErrors] = useState<z.inferFormattedError<T> | undefined>(
     undefined
@@ -62,7 +60,11 @@ export function useFormSubmission<T extends z.ZodType<any, any>>({
         description: config?.successMessage || 'Opération réussie.',
       });
 
-      router.refresh();
+      // Instead of router.refresh(), dispatch a custom event that client components
+      // can listen to in order to re-fetch their data. This is necessary because
+      // the data source is now a client-side mock store, not a server endpoint.
+      window.dispatchEvent(new Event('datachanged'));
+
       formRef.current?.reset();
       onSuccess?.();
     } catch (error) {

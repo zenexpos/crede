@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 import type { Customer } from '@/lib/types';
 
 import { AddCustomerDialog } from '@/components/customers/add-customer-dialog';
@@ -13,6 +13,18 @@ import { useCollectionOnce } from '@/hooks/use-collection-once';
 import { getCustomers } from '@/lib/mock-data/api';
 
 export default function DashboardPage() {
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  useEffect(() => {
+    const handleDataChanged = () => {
+      setRefreshTrigger((prev) => prev + 1);
+    };
+    window.addEventListener('datachanged', handleDataChanged);
+    return () => {
+      window.removeEventListener('datachanged', handleDataChanged);
+    };
+  }, []);
+
   const fetchCustomers = useCallback(async () => {
     const data = await getCustomers();
     // Sort data here since the mock API doesn't support sorting
@@ -20,7 +32,7 @@ export default function DashboardPage() {
     return data.sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
-  }, []);
+  }, [refreshTrigger]);
 
   const { data: customers, loading: customersLoading } =
     useCollectionOnce<Customer>(fetchCustomers);
