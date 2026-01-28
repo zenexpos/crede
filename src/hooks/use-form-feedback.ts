@@ -1,0 +1,34 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
+
+type FormState = {
+  type: string;
+  message: string;
+};
+
+export function useFormFeedback(
+  state: FormState,
+  onSuccess: () => void
+) {
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!state.type || !state.message) return;
+
+    if (state.type === 'success') {
+      toast({
+        title: 'Succès !',
+        description: state.message,
+      });
+      onSuccess();
+    } else if (state.type === 'error') {
+      toast({
+        title: 'Erreur',
+        description: state.message,
+        variant: 'destructive',
+      });
+    }
+  }, [state, toast, onSuccess]);
+}

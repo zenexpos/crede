@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { useToast } from '@/hooks/use-toast';
+import { useFormFeedback } from '@/hooks/use-form-feedback';
 import { Loader2 } from 'lucide-react';
 
 const customerSchema = z.object({
@@ -32,6 +31,7 @@ type CustomerFormValues = z.infer<typeof customerSchema>;
 const initialState = {
   type: '',
   message: '',
+  errors: {},
 };
 
 function SubmitButton() {
@@ -45,7 +45,6 @@ function SubmitButton() {
 
 export function AddCustomerForm({ onSuccess }: { onSuccess: () => void }) {
   const [state, formAction] = useFormState(addCustomerAction, initialState);
-  const { toast } = useToast();
 
   const form = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema),
@@ -55,21 +54,10 @@ export function AddCustomerForm({ onSuccess }: { onSuccess: () => void }) {
     },
   });
 
-  useEffect(() => {
-    if (state.type === 'success') {
-      toast({
-        title: 'Succès !',
-        description: state.message,
-      });
-      onSuccess();
-    } else if (state.type === 'error') {
-      toast({
-        title: 'Erreur',
-        description: state.message,
-        variant: 'destructive',
-      });
-    }
-  }, [state, toast, onSuccess]);
+  useFormFeedback(state, () => {
+    form.reset();
+    onSuccess();
+  });
 
   return (
     <Form {...form}>
