@@ -60,9 +60,6 @@
       ]
     }
   },
-  "auth": {
-    "providers": []
-  },
   "firestore": {
     "/customers/{customerId}": {
       "schema": {
