@@ -1,6 +1,4 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import type { CustomerWithBalance } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import {
@@ -23,8 +21,6 @@ export function CustomersTable({
 }: {
   customers: CustomerWithBalance[];
 }) {
-  const router = useRouter();
-
   return (
     <div className="overflow-hidden rounded-lg border">
       <Table>
@@ -71,13 +67,11 @@ export function CustomersTable({
                       customerId={customer.id}
                       buttonProps={{ size: 'sm' }}
                     />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => router.push(`/customers/${customer.id}`)}
-                    >
-                      <span className="sr-only">Voir les détails</span>
-                      <ArrowRight />
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link href={`/customers/${customer.id}`}>
+                        <span className="sr-only">Voir les détails</span>
+                        <ArrowRight />
+                      </Link>
                     </Button>
                   </div>
                 </TableCell>
