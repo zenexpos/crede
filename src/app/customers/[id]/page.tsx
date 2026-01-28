@@ -18,11 +18,10 @@ import { ArrowLeft } from 'lucide-react';
 import CustomerDetailLoading from './loading';
 
 export default function CustomerDetailPage({
-  params,
+  params: { id },
 }: {
   params: { id: string };
 }) {
-  const { id } = params;
   const firestore = useFirestore();
 
   const customerRef = useMemo(() => {
