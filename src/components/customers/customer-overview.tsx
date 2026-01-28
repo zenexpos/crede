@@ -8,6 +8,7 @@ import { CustomersTable } from './customers-table';
 import { Search, Download, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { mockDataStore, saveData } from '@/lib/mock-data';
+import { useToast } from '@/hooks/use-toast';
 
 export function CustomerOverview({
   customers,
@@ -16,6 +17,7 @@ export function CustomerOverview({
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const filteredCustomers = customers.filter((customer) =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -75,14 +77,19 @@ export function CustomerOverview({
         // Trigger UI update
         window.dispatchEvent(new Event('datachanged'));
 
-        alert('La sauvegarde a été restaurée avec succès !');
+        toast({
+          title: 'Succès !',
+          description: 'La sauvegarde a été restaurée avec succès !',
+        });
       } catch (error) {
         console.error('Failed to restore backup:', error);
-        alert(
-          `Erreur lors de la restauration de la sauvegarde: ${
+        toast({
+          title: 'Erreur',
+          description: `Erreur lors de la restauration: ${
             error instanceof Error ? error.message : 'Erreur inconnue'
-          }`
-        );
+          }`,
+          variant: 'destructive',
+        });
       } finally {
         // Reset file input so the same file can be uploaded again
         if (event.target) {
