@@ -10,7 +10,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, PlusCircle, MinusCircle } from 'lucide-react';
+import {
+  ArrowRight,
+  PlusCircle,
+  MinusCircle,
+  ChevronsUpDown,
+  ArrowUp,
+  ArrowDown,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
@@ -18,16 +25,60 @@ import { AddTransactionDialog } from '@/components/transactions/add-transaction-
 import { EditCustomerDialog } from './edit-customer-dialog';
 import { DeleteCustomerDialog } from './delete-customer-dialog';
 
-export function CustomersTable({ customers }: { customers: Customer[] }) {
+export function CustomersTable({
+  customers,
+  onSort,
+  sortConfig,
+}: {
+  customers: Customer[];
+  onSort: (key: keyof Customer) => void;
+  sortConfig: { key: keyof Customer; direction: 'ascending' | 'descending' };
+}) {
+  const getSortIcon = (key: keyof Customer) => {
+    if (sortConfig.key !== key) {
+      return <ChevronsUpDown className="ml-2 h-4 w-4 text-muted-foreground/50" />;
+    }
+    if (sortConfig.direction === 'ascending') {
+      return <ArrowUp className="ml-2 h-4 w-4" />;
+    }
+    return <ArrowDown className="ml-2 h-4 w-4" />;
+  };
+
   return (
     <div className="overflow-hidden rounded-lg border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Nom</TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                onClick={() => onSort('name')}
+                className="px-2 py-1"
+              >
+                Nom {getSortIcon('name')}
+              </Button>
+            </TableHead>
             <TableHead className="hidden sm:table-cell">Téléphone</TableHead>
-            <TableHead className="hidden md:table-cell">Date d'ajout</TableHead>
-            <TableHead className="text-right">Solde</TableHead>
+            <TableHead className="hidden md:table-cell">
+              <Button
+                variant="ghost"
+                onClick={() => onSort('createdAt')}
+                className="px-2 py-1"
+              >
+                Date d'ajout {getSortIcon('createdAt')}
+              </Button>
+            </TableHead>
+            <TableHead className="text-right">
+              <div className="flex justify-end">
+                <Button
+                  variant="ghost"
+                  onClick={() => onSort('balance')}
+                  className="px-2 py-1"
+                >
+                  Solde {getSortIcon('balance')}
+                </Button>
+              </div>
+            </TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>

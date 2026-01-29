@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { Customer } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,17 +11,56 @@ import { mockDataStore } from '@/lib/mock-data';
 import { useToast } from '@/hooks/use-toast';
 import { CsvImportDialog } from './csv-import-dialog';
 
-export function CustomerOverview({
-  customers,
-}: {
-  customers: Customer[];
-}) {
+type SortKey = keyof Customer;
+type SortDirection = 'ascending' | 'descending';
+
+interface SortConfig {
+  key: SortKey;
+  direction: SortDirection;
+}
+
+export function CustomerOverview({ customers }: { customers: Customer[] }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    key: 'createdAt',
+    direction: 'descending',
+  });
   const { toast } = useToast();
 
-  const filteredCustomers = customers.filter((customer) =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleSort = (key: SortKey) => {
+    let direction: SortDirection = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedAndFilteredCustomers = useMemo(() => {
+    let sortableCustomers = [...customers].filter((customer) =>
+      customer.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    sortableCustomers.sort((a, b) => {
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortConfig.direction === 'ascending'
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+
+      if (aValue < bValue) {
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    });
+
+    return sortableCustomers;
+  }, [customers, searchTerm, sortConfig]);
 
   const handleExport = () => {
     const customersToExport = mockDataStore.customers;
@@ -94,7 +133,11 @@ export function CustomerOverview({
         </div>
       </CardHeader>
       <CardContent>
-        <CustomersTable customers={filteredCustomers} />
+        <CustomersTable
+          customers={sortedAndFilteredCustomers}
+          onSort={handleSort}
+          sortConfig={sortConfig}
+        />
       </CardContent>
     </Card>
   );
