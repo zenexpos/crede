@@ -24,12 +24,6 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             )}>
                 Tableau de bord
             </Link>
-            <Link href="/commandes" className={cn(
-                "transition-colors hover:text-foreground",
-                pathname.startsWith('/commandes') ? "text-foreground" : "text-muted-foreground"
-            )}>
-                Commandes
-            </Link>
         </nav>
       </header>
       <main className="flex-1 p-4 sm:p-6 md:p-8">
