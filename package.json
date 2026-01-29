@@ -22,12 +22,14 @@
     "next": "15.5.9",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
+    "react-papaparse": "^4.4.0",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/papaparse": "^5.3.14",
     "@types/react": "^19.2.1",
     "@types/react-dom": "^19.2.1",
     "postcss": "^8",
