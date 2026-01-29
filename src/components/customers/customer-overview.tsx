@@ -24,19 +24,50 @@ export function CustomerOverview({
   );
 
   const handleExport = () => {
-    // Use the current state from the mockDataStore for the export.
-    // This store is initialized from localStorage, so it's the latest data.
-    const dataToExport = JSON.stringify(mockDataStore, null, 2);
-    const blob = new Blob([dataToExport], { type: 'application/json' });
+    const customersToExport = mockDataStore.customers;
+    if (customersToExport.length === 0) {
+      toast({
+        title: 'Aucune donnée à exporter',
+        description: "Il n'y a aucun client à exporter.",
+      });
+      return;
+    }
+
+    const headers = ['id', 'name', 'phone', 'createdAt', 'balance'];
+    // Add BOM for Excel compatibility with UTF-8
+    const bom = '\uFEFF';
+    const csvRows = [
+      headers.join(','),
+      ...customersToExport.map((customer) =>
+        headers
+          .map((fieldName) => {
+            let cell = customer[fieldName as keyof Customer] ?? '';
+            // Basic CSV escaping for values containing commas or quotes
+            cell = String(cell).replace(/"/g, '""');
+            if (/[",\n]/.test(cell)) {
+              cell = `"${cell}"`;
+            }
+            return cell;
+          })
+          .join(',')
+      ),
+    ];
+    const csvString = bom + csvRows.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-    link.download = `export-crede-zenagui-${date}.json`;
+    link.download = `export-clients-${date}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    toast({
+      title: 'Exportation réussie',
+      description: 'Les données des clients ont été exportées au format CSV.',
+    });
   };
 
   const handleImportClick = () => {
@@ -56,20 +87,53 @@ export function CustomerOverview({
         if (typeof text !== 'string') {
           throw new Error("Le fichier n'a pas pu être lu");
         }
-        const data = JSON.parse(text);
 
-        // Basic validation
-        if (
-          !data ||
-          !Array.isArray(data.customers) ||
-          !Array.isArray(data.transactions)
-        ) {
-          throw new Error('Format de fichier invalide.');
+        const lines = text.trim().split(/\r\n|\n/);
+        if (lines.length < 2) {
+          throw new Error(
+            "Le fichier CSV est vide ou ne contient que l'en-tête."
+          );
+        }
+        // Remove BOM if present
+        const headerLine =
+          lines[0].charCodeAt(0) === 0xfeff ? lines[0].substring(1) : lines[0];
+        const headers = headerLine.split(',').map((h) => h.trim());
+
+        const requiredHeaders = ['id', 'name', 'phone', 'createdAt', 'balance'];
+        const missingHeaders = requiredHeaders.filter(
+          (h) => !headers.includes(h)
+        );
+        if (missingHeaders.length > 0) {
+          throw new Error(
+            `En-têtes CSV manquants: ${missingHeaders.join(', ')}`
+          );
         }
 
+        const newCustomers: Customer[] = lines
+          .slice(1)
+          .map((line) => {
+            if (!line.trim()) return null; // Ignore empty lines
+            // This is a very basic CSV parser, it won't handle commas inside quoted fields.
+            const values = line.split(',');
+            const customer: Partial<Customer> = {};
+            headers.forEach((header, index) => {
+              if (requiredHeaders.includes(header)) {
+                const value = values[index]?.trim() ?? '';
+                if (header === 'balance') {
+                  (customer as any)[header] = parseFloat(value) || 0;
+                } else {
+                  (customer as any)[header] = value;
+                }
+              }
+            });
+            return customer as Customer;
+          })
+          .filter((c): c is Customer => c !== null);
+
         // Restore data into the in-memory store
-        mockDataStore.customers = data.customers;
-        mockDataStore.transactions = data.transactions;
+        mockDataStore.customers = newCustomers;
+        // IMPORTANT: Clear transactions as they are not part of the CSV and would be orphaned.
+        mockDataStore.transactions = [];
 
         // Persist the restored data to localStorage
         saveData();
@@ -79,7 +143,7 @@ export function CustomerOverview({
 
         toast({
           title: 'Succès !',
-          description: 'Les données ont été importées avec succès !',
+          description: `Données importées depuis CSV. ${newCustomers.length} clients chargés. Les anciennes transactions ont été effacées.`,
         });
       } catch (error) {
         console.error('Failed to import data:', error);
@@ -128,7 +192,7 @@ export function CustomerOverview({
               ref={fileInputRef}
               onChange={handleFileChange}
               className="hidden"
-              accept="application/json"
+              accept=".csv"
             />
           </div>
         </div>
