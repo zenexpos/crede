@@ -52,8 +52,8 @@ export default function Loading() {
         </Card>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+      <div className="flex flex-col gap-8">
+        <Card>
           <CardHeader>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <Skeleton className="h-6 w-1/3" />
@@ -71,7 +71,7 @@ export default function Loading() {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-1">
+        <Card>
           <CardHeader>
             <Skeleton className="h-7 w-48" />
             <Skeleton className="h-4 w-64" />

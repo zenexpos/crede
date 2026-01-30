@@ -126,15 +126,13 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
+      <div className="flex flex-col gap-8">
         <CustomerOverview
           customers={customers || []}
-          className="lg:col-span-2"
         />
         <RecentTransactions
           transactions={transactions || []}
           customers={customers || []}
-          className="lg:col-span-1"
         />
       </div>
     </div>
