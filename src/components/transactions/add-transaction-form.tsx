@@ -9,6 +9,7 @@ import { SubmitButton } from '@/components/forms/submit-button';
 import type { TransactionType } from '@/lib/types';
 import { useFormSubmission } from '@/hooks/use-form-submission';
 import { addTransaction } from '@/lib/mock-data/api';
+import { format } from 'date-fns';
 
 const transactionSchema = z.object({
   amount: z.coerce
@@ -17,6 +18,9 @@ const transactionSchema = z.object({
   description: z
     .string()
     .min(3, { message: 'La description doit comporter au moins 3 caractères.' }),
+  date: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "La date n'est pas valide.",
+  }),
 });
 
 export function AddTransactionForm({
@@ -33,8 +37,8 @@ export function AddTransactionForm({
   defaultDescription?: string;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
-
   const text = type === 'debt' ? 'Ajouter la dette' : 'Ajouter le paiement';
+  const today = format(new Date(), 'yyyy-MM-dd');
 
   const { isPending, errors, handleSubmit } = useFormSubmission({
     formRef,
@@ -49,6 +53,7 @@ export function AddTransactionForm({
         ...data,
         customerId,
         type,
+        date: new Date(data.date).toISOString(),
       });
     },
   });
@@ -82,6 +87,16 @@ export function AddTransactionForm({
         {errors?.description && (
           <p className="text-sm font-medium text-destructive">
             {errors.description._errors[0]}
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="date">Date</Label>
+        <Input id="date" name="date" type="date" defaultValue={today} />
+        {errors?.date && (
+          <p className="text-sm font-medium text-destructive">
+            {errors.date._errors[0]}
           </p>
         )}
       </div>

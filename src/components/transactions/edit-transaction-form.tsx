@@ -9,6 +9,7 @@ import { SubmitButton } from '@/components/forms/submit-button';
 import { useFormSubmission } from '@/hooks/use-form-submission';
 import { updateTransaction } from '@/lib/mock-data/api';
 import type { Transaction } from '@/lib/types';
+import { format } from 'date-fns';
 
 const transactionSchema = z.object({
   amount: z.coerce
@@ -17,6 +18,9 @@ const transactionSchema = z.object({
   description: z
     .string()
     .min(3, { message: 'La description doit comporter au moins 3 caractères.' }),
+  date: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "La date n'est pas valide.",
+  }),
 });
 
 export function EditTransactionForm({
@@ -27,6 +31,7 @@ export function EditTransactionForm({
   onSuccess?: () => void;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const defaultDate = format(new Date(transaction.date), 'yyyy-MM-dd');
 
   const { isPending, errors, handleSubmit } = useFormSubmission({
     formRef,
@@ -34,10 +39,14 @@ export function EditTransactionForm({
     onSuccess,
     config: {
       successMessage: 'Transaction mise à jour avec succès.',
-      errorMessage: "Une erreur est survenue lors de la mise à jour de la transaction.",
+      errorMessage:
+        "Une erreur est survenue lors de la mise à jour de la transaction.",
     },
     onSubmit: async (data) => {
-      await updateTransaction(transaction.id, data);
+      await updateTransaction(transaction.id, {
+        ...data,
+        date: new Date(data.date).toISOString(),
+      });
     },
   });
 
@@ -74,7 +83,19 @@ export function EditTransactionForm({
         )}
       </div>
 
-      <SubmitButton isPending={isPending}>Mettre à jour la transaction</SubmitButton>
+      <div className="space-y-2">
+        <Label htmlFor="date">Date</Label>
+        <Input id="date" name="date" type="date" defaultValue={defaultDate} />
+        {errors?.date && (
+          <p className="text-sm font-medium text-destructive">
+            {errors.date._errors[0]}
+          </p>
+        )}
+      </div>
+
+      <SubmitButton isPending={isPending}>
+        Mettre à jour la transaction
+      </SubmitButton>
     </form>
   );
 }

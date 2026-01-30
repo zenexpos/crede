@@ -96,6 +96,7 @@ interface AddTransactionData {
   type: TransactionType;
   amount: number;
   description: string;
+  date: string;
 }
 
 export const addTransaction = async (
@@ -114,7 +115,6 @@ export const addTransaction = async (
 
       const newTransaction: Transaction = {
         id: `t-${Date.now()}`,
-        date: new Date().toISOString(),
         ...data,
       };
 
@@ -165,7 +165,7 @@ export const updateCustomer = async (
 
 export const updateTransaction = async (
   id: string,
-  data: { amount: number; description: string }
+  data: { amount: number; description: string; date: string }
 ): Promise<Transaction> => {
   console.log(`Updating transaction ${id} with:`, data);
   return new Promise((resolve, reject) => {
