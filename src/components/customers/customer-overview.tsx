@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { mockDataStore } from '@/lib/mock-data';
 import { useToast } from '@/hooks/use-toast';
 import { CsvImportDialog } from './csv-import-dialog';
+import { cn } from '@/lib/utils';
 
 type SortKey = keyof Customer;
 type SortDirection = 'ascending' | 'descending';
@@ -19,7 +20,13 @@ interface SortConfig {
   direction: SortDirection;
 }
 
-export function CustomerOverview({ customers }: { customers: Customer[] }) {
+export function CustomerOverview({
+  customers,
+  className,
+}: {
+  customers: Customer[];
+  className?: string;
+}) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     key: 'createdAt',
@@ -128,7 +135,7 @@ export function CustomerOverview({ customers }: { customers: Customer[] }) {
   };
 
   return (
-    <Card>
+    <Card className={cn(className)}>
       <CardHeader>
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <CardTitle>Aperçu des clients</CardTitle>

@@ -11,6 +11,7 @@ import { StatCard } from '@/components/dashboard/stat-card';
 import Loading from './loading';
 import { useCollectionOnce } from '@/hooks/use-collection-once';
 import { getCustomers, getAllTransactions } from '@/lib/mock-data/api';
+import { RecentTransactions } from '@/components/dashboard/recent-transactions';
 
 export default function DashboardPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -125,7 +126,17 @@ export default function DashboardPage() {
         />
       </div>
 
-      <CustomerOverview customers={customers || []} />
+      <div className="grid gap-8 lg:grid-cols-3">
+        <CustomerOverview
+          customers={customers || []}
+          className="lg:col-span-2"
+        />
+        <RecentTransactions
+          transactions={transactions || []}
+          customers={customers || []}
+          className="lg:col-span-1"
+        />
+      </div>
     </div>
   );
 }
