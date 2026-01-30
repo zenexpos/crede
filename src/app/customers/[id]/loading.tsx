@@ -12,7 +12,8 @@ export default function CustomerDetailLoading() {
             <Skeleton className="h-5 w-1/2" />
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Skeleton className="h-5 w-3/4" />
               <Skeleton className="h-5 w-3/4" />
               <Skeleton className="h-5 w-3/4" />
             </div>
@@ -22,9 +23,19 @@ export default function CustomerDetailLoading() {
 
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <Skeleton className="h-8 w-1/4" />
+          <Skeleton className="h-4 w-1/2" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-64 w-full" />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <Skeleton className="h-8 w-1/4" />
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Skeleton className="h-10 w-32" />
               <Skeleton className="h-10 w-36" />
             </div>

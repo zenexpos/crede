@@ -17,6 +17,7 @@ import {
   getCustomerById,
   getTransactionsByCustomerId,
 } from '@/lib/mock-data/api';
+import { BalanceHistoryChart } from '@/components/customers/balance-history-chart';
 
 export default function CustomerDetailPage() {
   const params = useParams();
@@ -77,6 +78,12 @@ export default function CustomerDetailPage() {
         </Button>
         <CustomerHeader customer={customer} transactions={sortedTransactions} />
       </div>
+
+      <BalanceHistoryChart
+        customer={customer}
+        transactions={sortedTransactions}
+      />
+
       <TransactionsView
         transactions={sortedTransactions}
         customerId={customer.id}
