@@ -29,4 +29,6 @@ export interface BreadOrder {
   isDelivered: boolean;
   createdAt: string; // ISO Date string
   isPinned: boolean;
+  customerId: string | null;
+  customerName: string | null;
 }

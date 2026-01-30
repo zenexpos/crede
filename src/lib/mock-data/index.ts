@@ -40,6 +40,12 @@ function getInitialData() {
           if (order.totalAmount === undefined) {
             order.totalAmount = (order.quantity || 0) * (order.unitPrice || 0);
           }
+          if (order.customerId === undefined) {
+            order.customerId = null;
+          }
+          if (order.customerName === undefined) {
+            order.customerName = null;
+          }
         });
         return parsedData;
       }

@@ -1,13 +1,22 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useCallback, useState } from 'react';
 import { z } from 'zod';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { SubmitButton } from '@/components/forms/submit-button';
 import { useFormSubmission } from '@/hooks/use-form-submission';
-import { addBreadOrder } from '@/lib/mock-data/api';
+import { addBreadOrder, getCustomers } from '@/lib/mock-data/api';
+import { useCollectionOnce } from '@/hooks/use-collection-once';
+import type { Customer } from '@/lib/types';
 
 const orderSchema = z.object({
   name: z
@@ -24,6 +33,12 @@ const orderSchema = z.object({
 
 export function AddOrderForm({ onSuccess }: { onSuccess?: () => void }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
+    null
+  );
+
+  const fetchCustomers = useCallback(getCustomers, []);
+  const { data: customers } = useCollectionOnce<Customer>(fetchCustomers);
 
   const { isPending, errors, handleSubmit } = useFormSubmission({
     formRef,
@@ -35,12 +50,41 @@ export function AddOrderForm({ onSuccess }: { onSuccess?: () => void }) {
     },
     onSubmit: async (data) => {
       const totalAmount = data.quantity * data.unitPrice;
-      await addBreadOrder({ ...data, totalAmount });
+      const selectedCustomer = customers?.find(
+        (c) => c.id === selectedCustomerId
+      );
+
+      await addBreadOrder({
+        ...data,
+        totalAmount,
+        customerId: selectedCustomerId,
+        customerName: selectedCustomer?.name || null,
+      });
     },
   });
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="customer">Client (Optionnel)</Label>
+        <Select
+          onValueChange={(value) =>
+            setSelectedCustomerId(value === 'none' ? null : value)
+          }
+        >
+          <SelectTrigger id="customer">
+            <SelectValue placeholder="Sélectionner un client..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">Aucun client</SelectItem>
+            {customers?.map((customer) => (
+              <SelectItem key={customer.id} value={customer.id}>
+                {customer.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       <div className="space-y-2">
         <Label htmlFor="name">Nom de la commande</Label>
         <Input id="name" name="name" placeholder="Ex: Boulangerie Al-Amal" />

@@ -45,8 +45,12 @@ export default function OrdersPage() {
     if (!orders) return [];
     if (!searchTerm) return orders;
 
-    return orders.filter((order) =>
-      order.name.toLowerCase().includes(searchTerm.toLowerCase())
+    return orders.filter(
+      (order) =>
+        order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (order.customerName || '')
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
     );
   }, [orders, searchTerm]);
 

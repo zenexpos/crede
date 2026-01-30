@@ -274,6 +274,10 @@ export const deleteCustomer = async (id: string): Promise<{ id: string }> => {
 interface AddBreadOrderData {
   name: string;
   quantity: number;
+  unitPrice: number;
+  totalAmount: number;
+  customerId: string | null;
+  customerName: string | null;
 }
 
 export const addBreadOrder = async (data: AddBreadOrderData): Promise<BreadOrder> => {

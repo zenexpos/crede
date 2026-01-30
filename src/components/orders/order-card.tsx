@@ -1,7 +1,14 @@
 'use client';
 
 import type { BreadOrder } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   Package,
@@ -10,6 +17,7 @@ import {
   Undo2,
   Pin,
   WalletCards,
+  User,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateBreadOrder } from '@/lib/mock-data/api';
@@ -47,6 +55,17 @@ export function OrderCard({ order }: { order: BreadOrder }) {
     <Card className="relative">
       <CardHeader>
         <CardTitle className="truncate text-lg pr-28">{order.name}</CardTitle>
+        {order.customerName && order.customerId && (
+          <CardDescription asChild className="pt-1">
+            <Link
+              href={`/customers/${order.customerId}`}
+              className="flex items-center gap-1.5 hover:underline"
+            >
+              <User className="h-4 w-4" />
+              <span className="font-medium">{order.customerName}</span>
+            </Link>
+          </CardDescription>
+        )}
         <div className="absolute top-3 right-2 flex items-center">
           <EditOrderDialog order={order} />
           <Button
