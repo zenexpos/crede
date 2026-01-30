@@ -20,9 +20,11 @@ import { deleteCustomer } from '@/lib/mock-data/api';
 export function DeleteCustomerDialog({
   customerId,
   customerName,
+  onSuccess,
 }: {
   customerId: string;
   customerName: string;
+  onSuccess?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -38,6 +40,7 @@ export function DeleteCustomerDialog({
       });
       window.dispatchEvent(new Event('datachanged'));
       setOpen(false);
+      onSuccess?.();
     } catch (error) {
       console.error('Failed to delete customer', error);
       toast({

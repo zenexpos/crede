@@ -1,10 +1,9 @@
 'use client';
 
 import { useMemo, useCallback, useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter, notFound } from 'next/navigation';
 import type { Customer, Transaction } from '@/lib/types';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
 
 import { CustomerHeader } from '@/components/customers/customer-header';
 import { TransactionsView } from '@/components/transactions/transactions-view';
@@ -21,6 +20,7 @@ import { BalanceHistoryChart } from '@/components/customers/balance-history-char
 
 export default function CustomerDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -56,6 +56,10 @@ export default function CustomerDetailPage() {
     );
   }, [transactions]);
 
+  const handleDeleteSuccess = useCallback(() => {
+    router.push('/');
+  }, [router]);
+
   const loading = customerLoading || transactionsLoading;
 
   if (loading) {
@@ -76,7 +80,11 @@ export default function CustomerDetailPage() {
             Retour aux clients
           </Link>
         </Button>
-        <CustomerHeader customer={customer} transactions={sortedTransactions} />
+        <CustomerHeader
+          customer={customer}
+          transactions={sortedTransactions}
+          onDeleteSuccess={handleDeleteSuccess}
+        />
       </div>
 
       <BalanceHistoryChart

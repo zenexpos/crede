@@ -8,11 +8,25 @@ export default function CustomerDetailLoading() {
         <Skeleton className="h-8 w-48 mb-4" />
         <Card>
           <CardHeader>
-            <Skeleton className="h-8 w-1/3 mb-2" />
-            <Skeleton className="h-5 w-1/2" />
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div>
+                <Skeleton className="h-8 w-48 mb-2" />
+                <Skeleton className="h-5 w-32" />
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-left sm:text-right">
+                  <Skeleton className="h-4 w-24 ml-auto mb-1" />
+                  <Skeleton className="h-8 w-32 ml-auto" />
+                </div>
+                <div className="flex items-center gap-1 border-l pl-4">
+                  <Skeleton className="h-10 w-10 rounded-md" />
+                  <Skeleton className="h-10 w-10 rounded-md" />
+                </div>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t pt-4">
               <Skeleton className="h-5 w-3/4" />
               <Skeleton className="h-5 w-3/4" />
               <Skeleton className="h-5 w-3/4" />

@@ -13,13 +13,17 @@ import {
 import { Phone, WalletCards, HandCoins } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { EditCustomerDialog } from './edit-customer-dialog';
+import { DeleteCustomerDialog } from './delete-customer-dialog';
 
 export function CustomerHeader({
   customer,
   transactions,
+  onDeleteSuccess,
 }: {
   customer: Customer;
   transactions: Transaction[];
+  onDeleteSuccess?: () => void;
 }) {
   const { totalDebt, totalPayments } = useMemo(() => {
     if (!transactions) return { totalDebt: 0, totalPayments: 0 };
@@ -49,15 +53,25 @@ export function CustomerHeader({
               })}
             </CardDescription>
           </div>
-          <div className="text-left sm:text-right">
-            <p className="text-sm text-muted-foreground">Solde actuel</p>
-            <p
-              className={`text-3xl font-bold ${getBalanceColorClassName(
-                customer.balance
-              )}`}
-            >
-              {formatCurrency(customer.balance)}
-            </p>
+          <div className="flex items-center gap-4">
+            <div className="text-left sm:text-right">
+              <p className="text-sm text-muted-foreground">Solde actuel</p>
+              <p
+                className={`text-3xl font-bold ${getBalanceColorClassName(
+                  customer.balance
+                )}`}
+              >
+                {formatCurrency(customer.balance)}
+              </p>
+            </div>
+            <div className="flex items-center gap-1 border-l pl-4">
+              <EditCustomerDialog customer={customer} />
+              <DeleteCustomerDialog
+                customerId={customer.id}
+                customerName={customer.name}
+                onSuccess={onDeleteSuccess}
+              />
+            </div>
           </div>
         </div>
       </CardHeader>
