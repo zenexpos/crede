@@ -21,6 +21,9 @@ export const metadata: Metadata = {
     { media: '(prefers-color-scheme: light)', color: '#f9fafb' },
     { media: '(prefers-color-scheme: dark)', color: '#020817' },
   ],
+  icons: {
+    apple: '/icon.svg',
+  },
 };
 
 export default function RootLayout({

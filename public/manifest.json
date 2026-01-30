@@ -3,14 +3,17 @@
   "short_name": "Crédit",
   "description": "Une application pour gérer les crédits clients et les commandes.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#020817",
-  "theme_color": "#020817",
+  "orientation": "any",
+  "background_color": "#f9fafb",
+  "theme_color": "#3b82f6",
   "icons": [
     {
-      "src": "icon.svg",
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "purpose": "any maskable"
     }
   ]
 }
