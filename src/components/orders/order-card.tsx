@@ -9,8 +9,7 @@ import {
   Loader2,
   Undo2,
   Pin,
-  Pencil,
-  Trash2,
+  WalletCards,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateBreadOrder } from '@/lib/mock-data/api';
@@ -18,6 +17,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { EditOrderDialog } from './edit-order-dialog';
 import { DeleteOrderDialog } from './delete-order-dialog';
+import { formatCurrency } from '@/lib/utils';
 
 export function OrderCard({ order }: { order: BreadOrder }) {
   const { toast } = useToast();
@@ -72,12 +72,19 @@ export function OrderCard({ order }: { order: BreadOrder }) {
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Package className="h-5 w-5" />
-          <span className="text-xl font-bold text-foreground">
-            {order.quantity}
-          </span>
-          <span>unités</span>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Package className="h-5 w-5" />
+            <span className="font-medium text-foreground">
+              {order.quantity} unités x {formatCurrency(order.unitPrice)}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <WalletCards className="h-5 w-5" />
+            <span className="text-xl font-bold text-foreground">
+              {formatCurrency(order.totalAmount)}
+            </span>
+          </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <Button

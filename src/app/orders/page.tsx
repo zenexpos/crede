@@ -12,6 +12,7 @@ import { getBreadOrders } from '@/lib/mock-data/api';
 import { Hourglass, Check, ShoppingCart, Search } from 'lucide-react';
 import { ResetOrdersDialog } from '@/components/orders/reset-orders-dialog';
 import { Input } from '@/components/ui/input';
+import { formatCurrency } from '@/lib/utils';
 
 export default function OrdersPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -49,33 +50,34 @@ export default function OrdersPage() {
     );
   }, [orders, searchTerm]);
 
-  const { totalQuantity, deliveredQuantity, undeliveredQuantity } =
-    useMemo(() => {
-      if (!orders) {
-        return {
-          totalQuantity: 0,
-          deliveredQuantity: 0,
-          undeliveredQuantity: 0,
-        };
-      }
+  const { totalAmount, paidAmount, unpaidAmount } = useMemo(() => {
+    if (!orders) {
+      return {
+        totalAmount: 0,
+        paidAmount: 0,
+        unpaidAmount: 0,
+      };
+    }
 
-      return orders.reduce(
-        (acc, order) => {
-          acc.totalQuantity += order.quantity;
-          if (order.isDelivered) {
-            acc.deliveredQuantity += order.quantity;
-          } else {
-            acc.undeliveredQuantity += order.quantity;
-          }
-          return acc;
-        },
-        {
-          totalQuantity: 0,
-          deliveredQuantity: 0,
-          undeliveredQuantity: 0,
+    const amounts = orders.reduce(
+      (acc, order) => {
+        acc.totalAmount += order.totalAmount;
+        if (order.isPaid) {
+          acc.paidAmount += order.totalAmount;
         }
-      );
-    }, [orders]);
+        return acc;
+      },
+      {
+        totalAmount: 0,
+        paidAmount: 0,
+      }
+    );
+
+    return {
+      ...amounts,
+      unpaidAmount: amounts.totalAmount - amounts.paidAmount,
+    };
+  }, [orders]);
 
   if (loading) {
     return <OrdersLoading />;
@@ -95,21 +97,21 @@ export default function OrdersPage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <StatCard
-          title="Quantité totale"
-          value={totalQuantity}
-          description="Quantité totale de pain commandée"
+          title="Montant total"
+          value={formatCurrency(totalAmount)}
+          description="Montant total des commandes"
           Icon={ShoppingCart}
         />
         <StatCard
-          title="Quantité livrée"
-          value={deliveredQuantity}
-          description="Total des unités de pain livrées"
+          title="Montant payé"
+          value={formatCurrency(paidAmount)}
+          description="Total des commandes payées"
           Icon={Check}
         />
         <StatCard
-          title="Quantité non livrée"
-          value={undeliveredQuantity}
-          description="Total des unités de pain en attente de livraison"
+          title="Montant non payé"
+          value={formatCurrency(unpaidAmount)}
+          description="Total des commandes en attente de paiement"
           Icon={Hourglass}
         />
       </div>

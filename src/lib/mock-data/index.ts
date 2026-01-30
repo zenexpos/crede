@@ -34,6 +34,12 @@ function getInitialData() {
           if (order.isPinned === undefined) {
             order.isPinned = false;
           }
+          if (order.unitPrice === undefined) {
+            order.unitPrice = 0; // Default to 0, user should edit
+          }
+          if (order.totalAmount === undefined) {
+            order.totalAmount = (order.quantity || 0) * (order.unitPrice || 0);
+          }
         });
         return parsedData;
       }

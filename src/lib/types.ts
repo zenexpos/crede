@@ -23,6 +23,8 @@ export interface BreadOrder {
   id: string;
   name: string;
   quantity: number;
+  unitPrice: number;
+  totalAmount: number;
   isPaid: boolean;
   isDelivered: boolean;
   createdAt: string; // ISO Date string

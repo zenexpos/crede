@@ -18,6 +18,9 @@ const orderSchema = z.object({
     .number()
     .int()
     .positive({ message: 'La quantité doit être un nombre entier positif.' }),
+  unitPrice: z.coerce
+    .number()
+    .positive({ message: 'Le prix unitaire doit être un nombre positif.' }),
 });
 
 export function EditOrderForm({
@@ -35,10 +38,12 @@ export function EditOrderForm({
     onSuccess,
     config: {
       successMessage: 'Commande mise à jour avec succès.',
-      errorMessage: "Une erreur est survenue lors de la mise à jour de la commande.",
+      errorMessage:
+        'Une erreur est survenue lors de la mise à jour de la commande.',
     },
     onSubmit: async (data) => {
-      await updateBreadOrder(order.id, data);
+      const totalAmount = data.quantity * data.unitPrice;
+      await updateBreadOrder(order.id, { ...data, totalAmount });
     },
   });
 
@@ -67,7 +72,24 @@ export function EditOrderForm({
           </p>
         )}
       </div>
-      <SubmitButton isPending={isPending}>Mettre à jour la commande</SubmitButton>
+      <div className="space-y-2">
+        <Label htmlFor="unitPrice">Prix Unitaire (DZD)</Label>
+        <Input
+          id="unitPrice"
+          name="unitPrice"
+          type="number"
+          step="0.01"
+          defaultValue={order.unitPrice}
+        />
+        {errors?.unitPrice && (
+          <p className="text-sm font-medium text-destructive">
+            {errors.unitPrice._errors[0]}
+          </p>
+        )}
+      </div>
+      <SubmitButton isPending={isPending}>
+        Mettre à jour la commande
+      </SubmitButton>
     </form>
   );
 }
