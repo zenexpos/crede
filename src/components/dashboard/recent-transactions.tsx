@@ -37,7 +37,7 @@ export function RecentTransactions({
         customerName: customerMap.get(transaction.customerId) || 'Inconnu',
       }))
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 5);
+      .slice(0, 7);
   }, [transactions, customerMap]);
 
   const getInitials = (name: string) => {
@@ -56,12 +56,12 @@ export function RecentTransactions({
       <CardHeader>
         <CardTitle>Transactions Récentes</CardTitle>
         <CardDescription>
-          Les 5 dernières transactions enregistrées.
+          Les 7 dernières transactions enregistrées.
         </CardDescription>
       </CardHeader>
       <CardContent>
         {recentTransactions.length > 0 ? (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {recentTransactions.map((transaction) => (
               <div key={transaction.id} className="flex items-center gap-4">
                 <Avatar className="h-9 w-9">
