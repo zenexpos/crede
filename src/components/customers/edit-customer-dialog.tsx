@@ -14,7 +14,7 @@ export function EditCustomerDialog({
       title="Modifier le client"
       description="Mettez à jour les informations du client ci-dessous."
       trigger={
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" id="edit-customer-btn">
           <Pencil />
           <span className="sr-only">Modifier le client</span>
         </Button>

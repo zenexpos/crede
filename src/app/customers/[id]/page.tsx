@@ -34,6 +34,51 @@ export default function CustomerDetailPage() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+
+      // Ignore shortcuts if user is typing in an input, textarea, or select
+      if (
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) &&
+        !target.isContentEditable
+      ) {
+        return;
+      }
+
+      switch (event.key.toLowerCase()) {
+        case 'e':
+          event.preventDefault();
+          document.getElementById('edit-customer-btn')?.click();
+          break;
+        case 'd':
+          event.preventDefault();
+          document.getElementById('add-debt-btn')?.click();
+          break;
+        case 'p':
+          event.preventDefault();
+          document.getElementById('add-payment-btn')?.click();
+          break;
+        case 's':
+          event.preventDefault();
+          document.getElementById('transaction-search')?.focus();
+          break;
+        case 'escape':
+          event.preventDefault();
+          router.push('/');
+          break;
+        default:
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [router]);
+
   const fetchCustomer = useCallback(() => {
     if (!id) return Promise.resolve(null);
     return getCustomerById(id);
