@@ -3,7 +3,7 @@
 import type { BreadOrder } from '@/lib/types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MoreVertical, RefreshCw } from 'lucide-react';
+import { MoreVertical, RefreshCw, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateBreadOrder } from '@/lib/mock-data/api';
 import { useState } from 'react';
@@ -17,6 +17,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
@@ -45,12 +46,33 @@ export function OrderCard({
         title: 'Succès',
         description: 'Le statut de la commande a été mis à jour.',
       });
-      // The parent will re-fetch and re-render.
       onOrderUpdate();
     } catch (error) {
       toast({
         title: 'Erreur',
         description: 'Impossible de mettre à jour la commande.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handlePinToggle = async () => {
+    setIsUpdating(true);
+    try {
+      await updateBreadOrder(order.id, { isPinned: !order.isPinned });
+      toast({
+        title: 'Succès',
+        description: `La commande a été ${
+          order.isPinned ? 'détachée' : 'épinglée'
+        }.`,
+      });
+      onOrderUpdate();
+    } catch (error) {
+      toast({
+        title: 'Erreur',
+        description: "Impossible de mettre à jour l'épinglage de la commande.",
         variant: 'destructive',
       });
     } finally {
@@ -77,8 +99,11 @@ export function OrderCard({
             <div>
               <Label
                 htmlFor={`select-${order.id}`}
-                className="font-bold text-base cursor-pointer"
+                className="font-bold text-base cursor-pointer flex items-center gap-2"
               >
+                {order.isPinned && (
+                  <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                )}
                 {order.name}
               </Label>
               <div className="flex items-center gap-2 text-primary font-bold">
@@ -94,6 +119,14 @@ export function OrderCard({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    handlePinToggle();
+                  }}
+                >
+                  {order.isPinned ? 'Détacher' : 'Épingler'}
+                </DropdownMenuItem>
                 <EditOrderDialog
                   order={order}
                   trigger={
@@ -102,6 +135,7 @@ export function OrderCard({
                     </DropdownMenuItem>
                   }
                 />
+                <DropdownMenuSeparator />
                 <DeleteOrderDialog
                   orderId={order.id}
                   orderName={order.name}
