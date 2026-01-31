@@ -6,6 +6,7 @@ export interface Customer {
   balance: number;
   settlementDay?: string;
   totalDebts?: number;
+  totalPayments?: number;
 }
 
 export type TransactionType = 'debt' | 'payment';

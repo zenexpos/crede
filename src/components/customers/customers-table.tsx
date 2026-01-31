@@ -70,13 +70,22 @@ export function CustomersTable({
                 Jour de règlement {getSortIcon('settlementDay')}
               </Button>
             </TableHead>
-            <TableHead className="hidden md:table-cell">
+            <TableHead className="hidden lg:table-cell">
               <Button
                 variant="ghost"
                 onClick={() => onSort('totalDebts')}
                 className="px-2 py-1"
               >
                 Total des Dettes {getSortIcon('totalDebts')}
+              </Button>
+            </TableHead>
+            <TableHead className="hidden lg:table-cell">
+              <Button
+                variant="ghost"
+                onClick={() => onSort('totalPayments')}
+                className="px-2 py-1"
+              >
+                Total des Paiements {getSortIcon('totalPayments')}
               </Button>
             </TableHead>
             <TableHead className="text-right">
@@ -116,8 +125,11 @@ export function CustomersTable({
                       <span>{customer.settlementDay}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="hidden md:table-cell text-muted-foreground font-mono">
+                  <TableCell className="hidden lg:table-cell text-muted-foreground font-mono">
                     {formatCurrency(customer.totalDebts || 0)}
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell text-muted-foreground font-mono">
+                    {formatCurrency(customer.totalPayments || 0)}
                   </TableCell>
                   <TableCell className="text-right">
                     <Badge
@@ -173,7 +185,7 @@ export function CustomersTable({
             })
           ) : (
             <TableRow>
-              <TableCell colSpan={5} className="text-center h-24">
+              <TableCell colSpan={6} className="text-center h-24">
                 Aucun client trouvé.
               </TableCell>
             </TableRow>

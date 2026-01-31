@@ -89,19 +89,22 @@ export default function DashboardPage() {
   const customers = useMemo(() => {
     if (!rawCustomers || !transactions) return [];
 
-    const debtsByCustomer = transactions.reduce((acc, t) => {
+    const financialsByCustomer = transactions.reduce((acc, t) => {
+      if (!acc[t.customerId]) {
+        acc[t.customerId] = { debts: 0, payments: 0 };
+      }
       if (t.type === 'debt') {
-        if (!acc[t.customerId]) {
-          acc[t.customerId] = 0;
-        }
-        acc[t.customerId] += t.amount;
+        acc[t.customerId].debts += t.amount;
+      } else {
+        acc[t.customerId].payments += t.amount;
       }
       return acc;
-    }, {} as Record<string, number>);
+    }, {} as Record<string, { debts: number; payments: number }>);
 
     return rawCustomers.map((customer) => ({
       ...customer,
-      totalDebts: debtsByCustomer[customer.id] || 0,
+      totalDebts: financialsByCustomer[customer.id]?.debts || 0,
+      totalPayments: financialsByCustomer[customer.id]?.payments || 0,
     }));
   }, [rawCustomers, transactions]);
 
