@@ -137,6 +137,12 @@ export default function OrdersPage() {
     const [key, direction] = sortOption.split('-');
 
     filtered.sort((a, b) => {
+      // Primary sort: undelivered orders first
+      if (a.isDelivered !== b.isDelivered) {
+        return a.isDelivered ? 1 : -1;
+      }
+
+      // Secondary sort: based on user's selection
       let valA, valB;
       if (key === 'name') {
         valA = a.name.toLowerCase();
