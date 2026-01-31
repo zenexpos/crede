@@ -16,6 +16,7 @@ import {
   Package,
   PackageCheck,
   PackageOpen,
+  ListOrdered,
 } from 'lucide-react';
 import { ResetOrdersDialog } from '@/components/orders/reset-orders-dialog';
 import { Input } from '@/components/ui/input';
@@ -40,6 +41,7 @@ export default function OrdersPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [sortOption, setSortOption] = useState('date-desc');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const { toast } = useToast();
 
@@ -57,14 +59,12 @@ export default function OrdersPage() {
   const fetchOrders = useCallback(async () => {
     const data = await getBreadOrders();
     if (!data) return [];
-    return data.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    return data;
   }, [refreshTrigger]);
 
   const { data: orders, loading } = useCollectionOnce<BreadOrder>(fetchOrders);
 
-  const filteredOrders = useMemo(() => {
+  const processedOrders = useMemo(() => {
     if (!orders) return [];
 
     let filtered = orders.filter(
@@ -77,17 +77,49 @@ export default function OrdersPage() {
 
     switch (statusFilter) {
       case 'paid':
-        return filtered.filter((order) => order.isPaid);
+        filtered = filtered.filter((order) => order.isPaid);
+        break;
       case 'unpaid':
-        return filtered.filter((order) => !order.isPaid);
+        filtered = filtered.filter((order) => !order.isPaid);
+        break;
       case 'delivered':
-        return filtered.filter((order) => order.isDelivered);
+        filtered = filtered.filter((order) => order.isDelivered);
+        break;
       case 'undelivered':
-        return filtered.filter((order) => !order.isDelivered);
+        filtered = filtered.filter((order) => !order.isDelivered);
+        break;
       default:
-        return filtered;
+        // No status filter
+        break;
     }
-  }, [orders, searchTerm, statusFilter]);
+
+    const [key, direction] = sortOption.split('-');
+
+    filtered.sort((a, b) => {
+      let valA, valB;
+      if (key === 'name') {
+        valA = a.name.toLowerCase();
+        valB = b.name.toLowerCase();
+      } else if (key === 'quantity') {
+        valA = a.quantity;
+        valB = b.quantity;
+      } else {
+        // date
+        valA = new Date(a.createdAt).getTime();
+        valB = new Date(b.createdAt).getTime();
+      }
+
+      if (valA < valB) {
+        return direction === 'asc' ? -1 : 1;
+      }
+      if (valA > valB) {
+        return direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
+    return filtered;
+  }, [orders, searchTerm, statusFilter, sortOption]);
 
   const stats = useMemo(() => {
     if (!orders) {
@@ -121,7 +153,7 @@ export default function OrdersPage() {
 
   const handleSelectAll = (checked: boolean | 'indeterminate') => {
     if (checked === true) {
-      setSelectedOrders(filteredOrders.map((o) => o.id));
+      setSelectedOrders(processedOrders.map((o) => o.id));
     } else {
       setSelectedOrders([]);
     }
@@ -178,10 +210,10 @@ export default function OrdersPage() {
   };
 
   const isAllSelected =
-    filteredOrders.length > 0 &&
-    selectedOrders.length === filteredOrders.length;
+    processedOrders.length > 0 &&
+    selectedOrders.length === processedOrders.length;
   const isPartiallySelected =
-    selectedOrders.length > 0 && selectedOrders.length < filteredOrders.length;
+    selectedOrders.length > 0 && selectedOrders.length < processedOrders.length;
 
   if (loading) {
     return <OrdersLoading />;
@@ -208,6 +240,20 @@ export default function OrdersPage() {
             className="pl-10 w-full"
           />
         </div>
+        <Select value={sortOption} onValueChange={setSortOption}>
+          <SelectTrigger className="w-full sm:w-[180px]">
+            <ListOrdered className="h-4 w-4 mr-2" />
+            <SelectValue placeholder="Trier par" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="date-desc">Date (plus récent)</SelectItem>
+            <SelectItem value="date-asc">Date (plus ancien)</SelectItem>
+            <SelectItem value="name-asc">Nom (A-Z)</SelectItem>
+            <SelectItem value="name-desc">Nom (Z-A)</SelectItem>
+            <SelectItem value="quantity-desc">Quantité (décroissant)</SelectItem>
+            <SelectItem value="quantity-asc">Quantité (croissant)</SelectItem>
+          </SelectContent>
+        </Select>
         <Select
           value={statusFilter}
           onValueChange={(value) => setStatusFilter(value as StatusFilter)}
@@ -246,7 +292,7 @@ export default function OrdersPage() {
               onCheckedChange={handleSelectAll}
             />
             <Label htmlFor="select-all">
-              {selectedOrders.length} / {filteredOrders.length} sélectionné(s)
+              {selectedOrders.length} / {processedOrders.length} sélectionné(s)
             </Label>
           </div>
           <div className="flex gap-2">
@@ -367,9 +413,9 @@ export default function OrdersPage() {
         </CardContent>
       </Card>
 
-      {filteredOrders && filteredOrders.length > 0 ? (
+      {processedOrders && processedOrders.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {filteredOrders.map((order) => (
+          {processedOrders.map((order) => (
             <OrderCard
               key={order.id}
               order={order}
