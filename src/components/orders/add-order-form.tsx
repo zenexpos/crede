@@ -66,6 +66,21 @@ export function AddOrderForm({ onSuccess }: { onSuccess?: () => void }) {
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
+        <Label htmlFor="unitPrice">Prix Unitaire (DZD)</Label>
+        <Input
+          id="unitPrice"
+          name="unitPrice"
+          type="number"
+          step="0.01"
+          placeholder="Ex: 15"
+        />
+        {errors?.unitPrice && (
+          <p className="text-sm font-medium text-destructive">
+            {errors.unitPrice._errors[0]}
+          </p>
+        )}
+      </div>
+      <div className="space-y-2">
         <Label htmlFor="customer">Client (Optionnel)</Label>
         <Select
           onValueChange={(value) =>
@@ -105,21 +120,6 @@ export function AddOrderForm({ onSuccess }: { onSuccess?: () => void }) {
         {errors?.quantity && (
           <p className="text-sm font-medium text-destructive">
             {errors.quantity._errors[0]}
-          </p>
-        )}
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="unitPrice">Prix Unitaire (DZD)</Label>
-        <Input
-          id="unitPrice"
-          name="unitPrice"
-          type="number"
-          step="0.01"
-          placeholder="Ex: 15"
-        />
-        {errors?.unitPrice && (
-          <p className="text-sm font-medium text-destructive">
-            {errors.unitPrice._errors[0]}
           </p>
         )}
       </div>

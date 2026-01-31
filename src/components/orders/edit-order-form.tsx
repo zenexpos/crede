@@ -72,6 +72,21 @@ export function EditOrderForm({
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
+        <Label htmlFor="unitPrice">Prix Unitaire (DZD)</Label>
+        <Input
+          id="unitPrice"
+          name="unitPrice"
+          type="number"
+          step="0.01"
+          defaultValue={order.unitPrice}
+        />
+        {errors?.unitPrice && (
+          <p className="text-sm font-medium text-destructive">
+            {errors.unitPrice._errors[0]}
+          </p>
+        )}
+      </div>
+      <div className="space-y-2">
         <Label htmlFor="customer">Client (Optionnel)</Label>
         <Select
           defaultValue={selectedCustomerId || 'none'}
@@ -112,21 +127,6 @@ export function EditOrderForm({
         {errors?.quantity && (
           <p className="text-sm font-medium text-destructive">
             {errors.quantity._errors[0]}
-          </p>
-        )}
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="unitPrice">Prix Unitaire (DZD)</Label>
-        <Input
-          id="unitPrice"
-          name="unitPrice"
-          type="number"
-          step="0.01"
-          defaultValue={order.unitPrice}
-        />
-        {errors?.unitPrice && (
-          <p className="text-sm font-medium text-destructive">
-            {errors.unitPrice._errors[0]}
           </p>
         )}
       </div>
