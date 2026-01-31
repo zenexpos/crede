@@ -38,20 +38,20 @@ export default function DashboardPage() {
         return;
       }
 
-      switch (event.key.toLowerCase()) {
-        case 'a':
+      switch (event.key) {
+        case 'F5':
           event.preventDefault();
           document.getElementById('add-customer-btn')?.click();
           break;
-        case 's':
+        case 'F6':
           event.preventDefault();
           document.getElementById('customer-search-input')?.focus();
           break;
-        case 'i':
+        case 'F7':
           event.preventDefault();
           document.getElementById('import-customers-btn')?.click();
           break;
-        case 'e':
+        case 'F8':
           event.preventDefault();
           document.getElementById('export-customers-btn')?.click();
           break;

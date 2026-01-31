@@ -46,24 +46,24 @@ export default function CustomerDetailPage() {
         return;
       }
 
-      switch (event.key.toLowerCase()) {
-        case 'e':
+      switch (event.key) {
+        case 'F1':
           event.preventDefault();
           document.getElementById('edit-customer-btn')?.click();
           break;
-        case 'd':
+        case 'F2':
           event.preventDefault();
           document.getElementById('add-debt-btn')?.click();
           break;
-        case 'p':
+        case 'F3':
           event.preventDefault();
           document.getElementById('add-payment-btn')?.click();
           break;
-        case 's':
+        case 'F4':
           event.preventDefault();
           document.getElementById('transaction-search')?.focus();
           break;
-        case 'escape':
+        case 'Escape':
           event.preventDefault();
           router.push('/');
           break;
