@@ -1,5 +1,6 @@
 import { mockDataStore, saveData } from './index';
 import type { Customer, Transaction, TransactionType, BreadOrder } from '@/lib/types';
+import database from './database.json';
 
 const MOCK_API_LATENCY = 100; // ms
 
@@ -364,6 +365,23 @@ export const deleteBreadOrder = async (id: string): Promise<{ id: string }> => {
 
       saveData();
       resolve({ id });
+    }, MOCK_API_LATENCY);
+  });
+};
+
+export const resetAllData = async (): Promise<{ success: boolean }> => {
+  console.log('Resetting all application data...');
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      mockDataStore.customers = JSON.parse(JSON.stringify(database.customers));
+      mockDataStore.transactions = JSON.parse(
+        JSON.stringify(database.transactions)
+      );
+      mockDataStore.breadOrders = JSON.parse(
+        JSON.stringify(database.breadOrders || [])
+      );
+      saveData();
+      resolve({ success: true });
     }, MOCK_API_LATENCY);
   });
 };

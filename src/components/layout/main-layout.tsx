@@ -12,6 +12,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   const navLinks = [
     { href: '/', label: 'Tableau de bord' },
     { href: '/orders', label: 'Commandes' },
+    { href: '/settings', label: 'Paramètres' },
   ];
 
   return (
